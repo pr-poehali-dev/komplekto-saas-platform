@@ -1,5 +1,10 @@
 import { statCards, demoProjects, demoOrders } from '@/data/demo';
 import Icon from '@/components/ui/icon';
+import type { Module } from '@/App';
+
+interface DashboardProps {
+  onNavigate: (m: Module) => void;
+}
 
 const statusConfig: Record<string, { label: string; color: string; dot: string }> = {
   active: { label: 'Активен', color: 'text-emerald-400', dot: 'bg-emerald-400' },
@@ -27,31 +32,32 @@ const activity = [
 ];
 
 const notifications = [
-  { text: 'Заказ ORD-2401 будет доставлен 20 января', type: 'info', time: '10 мин' },
-  { text: 'Бюджет проекта «Офис Meridian» превышен на 8%', type: 'warn', time: '1 ч' },
-  { text: 'Новое предложение от ПлиткаМаркет (-12%)', type: 'success', time: '2 ч' },
+  { text: 'Заказ ORD-2401 будет доставлен 20 июня', type: 'info', time: '10 мин', module: 'orders' as Module },
+  { text: 'Бюджет проекта «Офис Meridian» превышен на 8%', type: 'warn', time: '1 ч', module: 'projects' as Module },
+  { text: 'Новое предложение от ПлиткаМаркет (-12%)', type: 'success', time: '2 ч', module: 'catalog' as Module },
 ];
 
-export default function Dashboard() {
+export default function Dashboard({ onNavigate }: DashboardProps) {
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 lg:space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-k-text">Дашборд</h1>
-          <p className="text-sm text-k-muted mt-0.5">Добрый день, Алексей. Вот сводка по вашим проектам.</p>
+          <h1 className="text-xl lg:text-2xl font-bold text-k-text">Дашборд</h1>
+          <p className="text-xs lg:text-sm text-k-muted mt-0.5 hidden sm:block">Добрый день, Алексей. Сводка по вашим проектам.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="text-xs text-k-muted font-mono">14 января 2024</div>
-          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition-colors">
-            <Icon name="Plus" size={14} />
-            Новый проект
-          </button>
-        </div>
+        <button
+          onClick={() => onNavigate('projects')}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition-colors"
+        >
+          <Icon name="Plus" size={14} />
+          <span className="hidden sm:inline">Новый проект</span>
+          <span className="sm:hidden">Создать</span>
+        </button>
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {statCards.map((card, i) => (
           <div key={i} className="bg-k-surface rounded-xl p-4 border border-k-border hover-lift">
             <div className="flex items-center justify-between mb-3">
@@ -64,53 +70,56 @@ export default function Dashboard() {
                 'bg-k-surface2 text-k-muted'
               }`}>{card.change}</span>
             </div>
-            <div className="text-2xl font-bold text-k-text">{card.value}</div>
+            <div className="text-xl lg:text-2xl font-bold text-k-text">{card.value}</div>
             <div className="text-xs text-k-muted mt-1">{card.label}</div>
           </div>
         ))}
       </div>
 
       {/* Middle row */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Active Projects */}
-        <div className="col-span-2 bg-k-surface rounded-xl border border-k-border">
-          <div className="flex items-center justify-between px-5 py-3.5 border-b border-k-border">
+        <div className="lg:col-span-2 bg-k-surface rounded-xl border border-k-border">
+          <div className="flex items-center justify-between px-4 lg:px-5 py-3.5 border-b border-k-border">
             <h2 className="text-sm font-semibold text-k-text">Активные проекты</h2>
-            <button className="text-xs text-orange-400 hover:text-orange-300">Все проекты →</button>
+            <button
+              onClick={() => onNavigate('projects')}
+              className="text-xs text-orange-400 hover:text-orange-300 transition-colors"
+            >
+              Все проекты →
+            </button>
           </div>
           <div className="divide-y divide-k-border">
             {demoProjects.slice(0, 4).map((p) => {
               const s = statusConfig[p.status];
               return (
-                <div key={p.id} className="px-5 py-3.5 flex items-center gap-4 hover:bg-k-surface2/50 transition-colors">
-                  <div className="w-9 h-9 rounded-lg bg-k-surface2 border border-k-border flex items-center justify-center flex-shrink-0">
-                    <Icon name="Building2" size={16} className="text-k-dim" />
+                <div
+                  key={p.id}
+                  onClick={() => onNavigate('projects')}
+                  className="px-4 lg:px-5 py-3.5 flex items-center gap-3 hover:bg-k-surface2/50 transition-colors cursor-pointer"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-k-surface2 border border-k-border flex items-center justify-center flex-shrink-0">
+                    <Icon name="Building2" size={15} className="text-k-dim" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium text-k-text truncate">{p.name}</span>
-                      <span className={`text-[10px] font-medium flex items-center gap-1 ${s.color}`}>
+                      <span className={`text-[10px] font-medium flex items-center gap-1 ${s.color} hidden sm:flex`}>
                         <span className={`status-dot ${s.dot}`} />
                         {s.label}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 mt-1">
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                       <span className="text-xs text-k-muted">{p.type}</span>
-                      <span className="text-xs text-k-muted">•</span>
-                      <span className="text-xs text-k-muted">{p.city}</span>
-                      <span className="text-xs text-k-muted">•</span>
-                      <span className="text-xs text-k-muted">{p.rooms} комнат</span>
+                      <span className="text-xs text-k-muted hidden sm:inline">· {p.city}</span>
                     </div>
                     <div className="mt-2 h-1 bg-k-surface3 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-orange-500 to-orange-400 transition-all"
-                        style={{ width: `${p.progress}%` }}
-                      />
+                      <div className="h-full rounded-full bg-gradient-to-r from-orange-500 to-orange-400" style={{ width: `${p.progress}%` }} />
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <div className="text-sm font-semibold text-k-text">{formatMoney(p.budget)}</div>
-                    <div className="text-xs text-k-muted mt-0.5">{p.progress}% выполнено</div>
+                    <div className="text-xs text-k-muted mt-0.5">{p.progress}%</div>
                   </div>
                 </div>
               );
@@ -126,14 +135,18 @@ export default function Dashboard() {
           </div>
           <div className="p-3 space-y-2">
             {notifications.map((n, i) => (
-              <div key={i} className={`p-3 rounded-lg border text-xs ${
-                n.type === 'warn' ? 'bg-yellow-500/5 border-yellow-500/20 text-yellow-300' :
-                n.type === 'success' ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-300' :
-                'bg-blue-500/5 border-blue-500/20 text-blue-300'
-              }`}>
+              <button
+                key={i}
+                onClick={() => onNavigate(n.module)}
+                className={`w-full p-3 rounded-lg border text-xs text-left hover:opacity-90 transition-opacity ${
+                  n.type === 'warn' ? 'bg-yellow-500/5 border-yellow-500/20 text-yellow-300' :
+                  n.type === 'success' ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-300' :
+                  'bg-blue-500/5 border-blue-500/20 text-blue-300'
+                }`}
+              >
                 <div className="leading-relaxed">{n.text}</div>
                 <div className="text-[10px] mt-1 opacity-60">{n.time} назад</div>
-              </div>
+              </button>
             ))}
           </div>
 
@@ -146,7 +159,10 @@ export default function Dashboard() {
             <p className="text-[11px] text-k-dim leading-relaxed">
               Найдены более дешёвые альтернативы по плитке для ЖК Авангард. Экономия до ₽84К.
             </p>
-            <button className="mt-2 text-[10px] font-medium text-orange-400 hover:text-orange-300">
+            <button
+              onClick={() => onNavigate('catalog')}
+              className="mt-2 text-[10px] font-medium text-orange-400 hover:text-orange-300"
+            >
               Посмотреть →
             </button>
           </div>
@@ -154,34 +170,43 @@ export default function Dashboard() {
       </div>
 
       {/* Bottom row */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Recent Orders */}
-        <div className="col-span-2 bg-k-surface rounded-xl border border-k-border">
-          <div className="flex items-center justify-between px-5 py-3.5 border-b border-k-border">
+        <div className="lg:col-span-2 bg-k-surface rounded-xl border border-k-border overflow-hidden">
+          <div className="flex items-center justify-between px-4 lg:px-5 py-3.5 border-b border-k-border">
             <h2 className="text-sm font-semibold text-k-text">Последние заказы</h2>
-            <button className="text-xs text-orange-400 hover:text-orange-300">Все заказы →</button>
+            <button
+              onClick={() => onNavigate('orders')}
+              className="text-xs text-orange-400 hover:text-orange-300 transition-colors"
+            >
+              Все заказы →
+            </button>
           </div>
-          <div className="overflow-hidden">
-            <table className="w-full">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[480px]">
               <thead>
                 <tr className="border-b border-k-border">
-                  <th className="text-left px-5 py-2.5 text-[11px] font-medium text-k-muted">ЗАКАЗ</th>
-                  <th className="text-left px-3 py-2.5 text-[11px] font-medium text-k-muted">ПРОЕКТ</th>
+                  <th className="text-left px-4 lg:px-5 py-2.5 text-[11px] font-medium text-k-muted">ЗАКАЗ</th>
+                  <th className="text-left px-3 py-2.5 text-[11px] font-medium text-k-muted hidden sm:table-cell">ПРОЕКТ</th>
                   <th className="text-left px-3 py-2.5 text-[11px] font-medium text-k-muted">ПОСТАВЩИК</th>
                   <th className="text-right px-3 py-2.5 text-[11px] font-medium text-k-muted">СУММА</th>
-                  <th className="text-center px-5 py-2.5 text-[11px] font-medium text-k-muted">СТАТУС</th>
+                  <th className="text-center px-4 py-2.5 text-[11px] font-medium text-k-muted">СТАТУС</th>
                 </tr>
               </thead>
               <tbody>
                 {demoOrders.slice(0, 5).map((o) => {
                   const s = statusConfig[o.status];
                   return (
-                    <tr key={o.id} className="border-b border-k-border/50 hover:bg-k-surface2/30 transition-colors">
-                      <td className="px-5 py-3 text-sm font-mono text-orange-400">{o.id}</td>
-                      <td className="px-3 py-3 text-xs text-k-dim">{o.project}</td>
+                    <tr
+                      key={o.id}
+                      onClick={() => onNavigate('orders')}
+                      className="border-b border-k-border/50 hover:bg-k-surface2/30 transition-colors cursor-pointer"
+                    >
+                      <td className="px-4 lg:px-5 py-3 text-sm font-mono text-orange-400">{o.id}</td>
+                      <td className="px-3 py-3 text-xs text-k-dim hidden sm:table-cell">{o.project}</td>
                       <td className="px-3 py-3 text-xs text-k-text">{o.supplier}</td>
                       <td className="px-3 py-3 text-sm font-semibold text-k-text text-right">{formatMoney(o.amount)}</td>
-                      <td className="px-5 py-3 text-center">
+                      <td className="px-4 py-3 text-center">
                         <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${
                           o.status === 'delivered' ? 'bg-emerald-500/10 text-emerald-400' :
                           o.status === 'shipped' ? 'bg-blue-500/10 text-blue-400' :
@@ -203,7 +228,7 @@ export default function Dashboard() {
 
         {/* Activity */}
         <div className="bg-k-surface rounded-xl border border-k-border">
-          <div className="flex items-center justify-between px-4 py-3.5 border-b border-k-border">
+          <div className="px-4 py-3.5 border-b border-k-border">
             <h2 className="text-sm font-semibold text-k-text">Активность</h2>
           </div>
           <div className="p-3 space-y-0">
@@ -213,9 +238,7 @@ export default function Dashboard() {
                   <div className="w-6 h-6 rounded-full bg-k-surface2 border border-k-border flex items-center justify-center">
                     <Icon name={a.icon} size={11} className={a.color} fallback="Circle" />
                   </div>
-                  {i < activity.length - 1 && (
-                    <div className="absolute top-6 left-3 w-px h-full bg-k-border" />
-                  )}
+                  {i < activity.length - 1 && <div className="absolute top-6 left-3 w-px h-full bg-k-border" />}
                 </div>
                 <div className="flex-1 min-w-0 pb-2">
                   <p className="text-[11px] text-k-dim leading-relaxed">{a.text}</p>
