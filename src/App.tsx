@@ -1,28 +1,53 @@
-
+import { useState } from 'react';
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import Sidebar from '@/components/layout/Sidebar';
+import TopBar from '@/components/layout/TopBar';
+import KomiPanel from '@/components/KomiPanel';
+import Dashboard from '@/components/modules/Dashboard';
+import Catalog from '@/components/modules/Catalog';
+import Projects from '@/components/modules/Projects';
+import Specs from '@/components/modules/Specs';
+import Cart from '@/components/modules/Cart';
+import Orders from '@/components/modules/Orders';
+import Messages from '@/components/modules/Messages';
+import Admin from '@/components/modules/Admin';
 
-const queryClient = new QueryClient();
+export default function App() {
+  const [activeModule, setActiveModule] = useState('dashboard');
+  const [komiOpen, setKomiOpen] = useState(false);
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
+  const renderModule = () => {
+    switch (activeModule) {
+      case 'dashboard': return <Dashboard />;
+      case 'projects': return <Projects />;
+      case 'catalog': return <Catalog />;
+      case 'specs': return <Specs />;
+      case 'cart': return <Cart />;
+      case 'orders': return <Orders />;
+      case 'messages': return <Messages />;
+      case 'admin': return <Admin />;
+      default: return <Dashboard />;
+    }
+  };
+
+  return (
     <TooltipProvider>
       <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <div className="min-h-screen bg-k-bg text-k-text flex">
+        <Sidebar
+          activeModule={activeModule}
+          onNavigate={setActiveModule}
+          onKomiToggle={() => setKomiOpen(o => !o)}
+        />
+        <div className="flex-1 ml-[220px] flex flex-col min-h-screen">
+          <TopBar module={activeModule} onKomiToggle={() => setKomiOpen(o => !o)} />
+          <main className="flex-1 p-6 overflow-y-auto">
+            {renderModule()}
+          </main>
+        </div>
+        <KomiPanel isOpen={komiOpen} onClose={() => setKomiOpen(false)} />
+      </div>
     </TooltipProvider>
-  </QueryClientProvider>
-);
-
-export default App;
+  );
+}
